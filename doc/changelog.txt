@@ -1,0 +1,71 @@
+BBSmart Alarms Pro Changelog
+----------------------------
+
+v2.2
+* Modified registration method
+* Added in support for Tour (9630)
+* Added in option to disable banner icon
+* Fixed bug with banner icon not unregistering on force exit
+
+v1.25
+* Added in support for Bold, Storm, 8900, and 8350i (OS 4.6, 4.6.1, & 4.7)
+* Added in banner indicator when at least one alarm is set
+
+v1.24 - Public Release
+* Fixed up several small issues relating to alarm snoozing
+
+v1.23 - Public Release
+* Added in RealTimeClockListener uniqueness check
+
+v1.2.2 - Beta Release
+* Added in ability to pick alarm color (and changed indicator in main list)
+* Can now change the snooze time on the fly
+
+v1.2.1 - Beta Release
+* Alarms no longer auto-snooze after one minute
+* Fixed up dismiss & snooze bugs affecting OS 4.3 & 4.5 devices
+* No longer crashes on startup with OS 4.5.0.37 devices
+* More battery efficient algorithms
+* Cleaned up upgrade code
+* Minor graphical tweaks
+
+v1.1 - Public Release
+* Significantly reduced package size
+* Fixed up "check for updates" functionality
+* Fixed up button definitions (clearer when selected and not selected)
+* Home screen icon maintains correct color after hard-reset
+* Keyboard shortcuts for creating quick (Q), regular (R) alarms
+* Added in "Minimize" option
+* Added in quick "Saving" popup option to provide visual notification alarm changes are saved
+* Fixed up bug with "Trial" status bar still displaying after registration
+* Fixed up bug with alarm highlighting when using a non-default theme
+* Added in clean upgrade functionality
+* Added in information for what actions to take when no alarm sounds
+
+v1.0 - First Public Release
+* Fixed up hyperlink double selection issue
+* Cleaned up some buttons
+* Fixed up 'buy now' links
+
+v0.3 - Final Beta Release
+* Icon now changes if there is at least one alarm active
+* Alarm volume can now be set to zero (to create vibrate only alarms)
+* Added in option to silence alarm when unholstered
+* Corrected menu & button handling for trackwheel blackberries
+
+v0.2 - Second Alpha Release
+* Can now press 'Enter' key to activate buttons
+* Fixed up File "test sound" button appearance
+* Changed around snooze options (now 1, 2, 5, 10, 15, 30, 45, 60)
+* Can now play different media types (wav, midi, mp3, etc.)
+* Removed tone sound (was never loud enough to be worth including)
+* Added in several preloaded alarm sounds
+* Can now only select audio files from the file picker
+* Alert sound now respects volume preference
+* Loop forever settings now globally respected
+* Can now type in time to alarm on quick alarm screen
+
+
+v0.1 - First Alpha Release
+
+~~ The land before time ~~

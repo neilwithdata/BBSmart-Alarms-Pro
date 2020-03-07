@@ -1,0 +1,10 @@
+Features to add for v2.3:
+
+* On mouse over icon, display the time of the next alarm!
+* Allow users to set alarms for particular dates
+* If no alarms exist, onexit should forceexit the application. Likewise for auto-startup.
+* Add in support for Gemini, Onyx, and Odin
+* Backup of alarms on OS upgrade
+* Never alarm during a phonecall
+* Fix up display of alarm title on Pearl & Bold (cuts off side of screen when too long)
+* When setting a quick alarm, allow a time to be picked as well (not just minutes to)

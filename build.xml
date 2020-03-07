@@ -1,0 +1,189 @@
+<!-- Build Script for BBSmart Alarms Pro -->
+<!-- By Neil Sainsbury, February 09 -->
+
+<project name="BBSmart Alarms Pro" default="buildall" basedir=".">
+
+	<property file="build.properties" />
+
+	<property name="lib.dir" value="${basedir}/lib" />
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="res.dir" value="${basedir}/res" />
+	<property name="bin.dir" value="${basedir}/bin" />
+
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="deploy.dir" value="${basedir}/deploy" />
+	<property name="ota.deploy.dir" value="${deploy.dir}/ota" />
+	<property name="dm.deploy.dir" value="${deploy.dir}/dm" />
+
+	<typedef resource="bb-ant-defs.xml" classpath="${lib.dir}/bb-ant-tools.jar" />
+
+	<taskdef resource="net/sf/antcontrib/antlib.xml">
+		<classpath>
+			<pathelement location="${lib.dir}/ant-contrib-1.0b3.jar" />
+		</classpath>
+	</taskdef>
+
+	<target name="cleanall" depends="clean" description="Removes the build and deployment dirs">
+		<delete dir="${deploy.dir}" />
+		<mkdir dir="${deploy.dir}" />
+		<mkdir dir="${ota.deploy.dir}" />
+		<mkdir dir="${dm.deploy.dir}" />
+	</target>
+
+	<target name="clean" description="Removes the build dirs">
+		<delete file="LogFile.txt" />
+		<delete dir="${bin.dir}" />
+
+		<delete dir="${build.dir}" />
+		<mkdir dir="${build.dir}" />
+	</target>
+
+	<target name="build" depends="clean" description="Build with bb-ant-tools">
+		<echo>Building OUTPUT FOR OS ${bb.os.version}: ${jde.home}</echo>
+
+		<rapc output="${application.codename}" destdir="${build.dir}" quiet="true" verbose="false" noconvert="true">
+			<define tag="${bb.os.version}" />
+			<jdp type="cldc" file="gui.properties" />
+			<src>
+				<fileset dir="${src.dir}">
+					<include name="**/*.java" />
+				</fileset>
+				<fileset dir="${res.dir}" casesensitive="no">
+					<include name="**/*.jpg" />
+					<include name="**/*.png" />
+					<include name="**/*.gif" />
+					<include name="**/*.mp3" />
+				</fileset>
+			</src>
+		</rapc>
+	</target>
+
+	<!-- Custom signing piece (rather than use sigtool) to ensure we always use BBSmart code signing keys (not RIM!) -->
+	<target name="sign" depends="build" description="RIM COD Signing">
+		<if>
+			<equals arg1="${debug.enabled}" arg2="false" />
+			<then>
+				<!-- Execute the app to auto enter in the signing password -->
+				<java jar="lib\signing\SignatureTool.jar" fork="true">
+					<arg value="-a" />
+					<arg value="-c" />
+					<arg value="${build.dir}/${application.codename}.cod" />
+				</java>
+			</then>
+		</if>
+	</target>
+
+	<target name="deploybuild" depends="sign" description="Moves the build output files to the deployment dirs">
+		<!-- Setup the DM deployment directory -->
+		<mkdir dir="${dm.deploy.dir}/${bb.os.version}" />
+		<copy file="${build.dir}/${application.codename}.cod" todir="${dm.deploy.dir}/${bb.os.version}" />
+
+		<!-- Setup the OTA deployment directory -->
+		<mkdir dir="${ota.deploy.dir}/${bb.os.version}" />
+		<jadtool input="${build.dir}/${application.codename}.jad" destdir="${ota.deploy.dir}/${bb.os.version}">
+			<fileset file="${build.dir}/${application.codename}.cod" />
+		</jadtool>
+	</target>
+
+	<target name="setjdehome" description="Sets the JDE home (for bb-ant-tools) based on the current OS version targeted">
+		<if>
+			<equals arg1="${bb.os.version}" arg2="4.2" />
+			<then>
+				<var name="jde.home" value="${jde420.home}" />
+			</then>
+
+			<elseif>
+				<equals arg1="${bb.os.version}" arg2="4.3" />
+				<then>
+					<var name="jde.home" value="${jde430.home}" />
+				</then>
+			</elseif>
+
+			<elseif>
+				<equals arg1="${bb.os.version}" arg2="4.5" />
+				<then>
+					<var name="jde.home" value="${jde450.home}" />
+				</then>
+			</elseif>
+
+			<elseif>
+				<equals arg1="${bb.os.version}" arg2="4.6" />
+				<then>
+					<var name="jde.home" value="${jde460.home}" />
+				</then>
+			</elseif>
+
+			<elseif>
+				<equals arg1="${bb.os.version}" arg2="4.6.1" />
+				<then>
+					<var name="jde.home" value="${jde461.home}" />
+				</then>
+			</elseif>
+
+			<elseif>
+				<equals arg1="${bb.os.version}" arg2="4.7" />
+				<then>
+					<var name="jde.home" value="${jde470.home}" />
+				</then>
+			</elseif>
+		</if>
+
+		<antcall target="deploybuild">
+			<param name="bb.os.version" value="${bb.os.version}" />
+			<param name="jde.home" value="${jde.home}" />
+		</antcall>
+	</target>
+
+	<target name="genALX" description="Creates the .alx file for DM deployment">
+		<alx destdir="${dm.deploy.dir}" filename="${application.codename}.alx">
+			<application file="gui.properties">
+				<!-- 4.2 version is suitable for 4.2, 4.2.1, 4.3, 4.5 -->
+				<codset dir="4.2" greaterthanequal="4.2" lessthan="4.6">
+					<fileset file="${dm.deploy.dir}/4.2/${application.codename}.cod" />
+				</codset>
+
+				<!-- 4.6 version is suitable for 4.6 and 4.6.1 -->
+				<codset dir="4.6" greaterthanequal="4.6" lessthan="4.7">
+					<fileset file="${dm.deploy.dir}/4.6/${application.codename}.cod" />
+				</codset>
+
+				<!-- 4.7 version is suitable for 4.7 ONLY -->
+				<codset dir="4.7" greaterthanequal="4.7">
+					<fileset file="${dm.deploy.dir}/4.7/${application.codename}.cod" />
+				</codset>
+			</application>
+		</alx>
+	</target>
+
+	<target name="buildall">
+		<for list="${bb.os.targets}" param="bb.os.version">
+			<sequential>
+				<antcall target="setjdehome">
+					<param name="bb.os.version" value="@{bb.os.version}" />
+				</antcall>
+			</sequential>
+		</for>
+
+		<antcall target="genALX" />
+	</target>
+
+	<target name="deploy-to-simulator" description="Copy debug files to simulator folder">
+		<copy todir="${simulator.dir}/" overwrite="true">
+			<fileset dir="${dm.deploy.dir}/4.7">
+				<include name="*.cod" />
+			</fileset>
+		</copy>
+		<copy todir="${simulator.dir}/" overwrite="true">
+			<fileset dir="${build.dir}">
+				<include name="*.debug" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="ftp-test-upload" description="Uploads OTA install files to test server">
+		<ftp server="blackberrysmart.com" userid="bbsmart" remotedir="blackberrysmart.com/aptest">
+			<fileset dir="${ota.deploy.dir}" />
+		</ftp>
+	</target>
+
+</project>
